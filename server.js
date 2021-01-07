@@ -4,6 +4,9 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 1725;
 
+// parse requests of content-type - application/json
+app.use(bodyParser.json());
+
 // sync server to db
 const db = require("./models");
 db.sequelize.sync();
