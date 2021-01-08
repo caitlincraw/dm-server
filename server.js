@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const path = require('path');
+const bodyParser = require('body-parser');
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
     cors: {
@@ -11,6 +12,10 @@ const io = require('socket.io')(server, {
     }
 });
 const port = process.env.PORT || 1725;
+
+const index = require('./routes/index');
+
+app.use(index);
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
@@ -31,6 +36,8 @@ app.listen(port, () => {
 
 io.on('connection', (socket) => {
   let addedUser = false;
+
+  
 
   socket.on('chat', (data) => {
       socket.broadcast.emit('chat', {
