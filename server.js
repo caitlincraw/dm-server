@@ -30,19 +30,23 @@ app.get('/', (req, res) => {
 });
 
 // listen for requests
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+server.listen(port, () => {
+  console.log(`Express server and socket.io listening at http://localhost:${port}`);
 });
 
+// socket.io events
 io.on('connection', (socket) => {
-  let addedUser = false;
+  // let addedUser = false;
 
-  
+  console.log("a client is connected");
 
-  socket.on('chat', (data) => {
-      socket.broadcast.emit('chat', {
-          // username: socket.username,
-          message: data
-      });
+  socket.on('sendMessage', (message) => {
+      io.emit('message', message);
+      console.log(`${message} sent`)
+  });
+
+  // client disconnect socket event
+  socket.on("disconnect", () => {
+    console.log("client disconnected");
   });
 });
