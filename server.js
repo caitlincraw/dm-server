@@ -1,14 +1,28 @@
-//----------------------------------------------
-//-------------LOADING DEPENDENCIES-------------
-//----------------------------------------------
-
+//--------------------------------------------------
+//-----------------DEPENDENCIES---------------------
+//--------------------------------------------------
 require('dotenv').config();
-const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const express = require('express');
+const cors = require('cors');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
+const passportLocal = require('passport-local').Strategy;
+const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
+const session = require('express-session');
+const bodyParser = require('body-parser');
 const app = express();
-const path = require('path');
+const User = require('./user');
+mongoose.connect(
+  "mongodb+srv://Michael:b88bs@pamslist.zeeew.mongodb.net/test?retryWrites=true&w=majority",
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  },
+  () => {
+    console.log("Mongoose is connected")
+  }
+);
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
   cors: {
@@ -16,10 +30,29 @@ const io = require('socket.io')(server, {
     methods: ["GET", "POST"]
   }
 });
-const port = process.env.PORT || 1725;
 
-// parse requests of content-type - application/json
+//--------------------------------------------------
+//-----------------MIDDLE WARE----------------------
+//--------------------------------------------------
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}))
+
+app.use(session({
+  secret: 'thatswhatshesaid',
+  resave: true,
+  saveUninitialized: true,
+}));
+
+app.use(cookieParser('thatswhatshesaid'))
+app.use(passport.initialize());
+app.use(passport.session());
+require('./passportConfig')(passport);
+
+//---------------End of Middleware-------------------
 
 // sync server to db
 const db = require("./models");
@@ -28,11 +61,6 @@ db.sequelize.sync();
 // test route
 app.get('/', (req, res) => {
   res.send('Hello World!');
-});
-
-// listen for requests
-server.listen(port, () => {
-  console.log(`Express server and socket.io listening at http://localhost:${port}`);
 });
 
 // socket.io events
@@ -52,64 +80,56 @@ io.on('connection', (socket) => {
   });
 });
 
-//----------------------------------------------
-//-------------Configuring Local Strategy-------------
-//----------------------------------------------
-passport.use(new LocalStrategy(
-  function (username, password, cb) {
-    db.users.findByUsername(username, function (err, user) {
-      if (err) { return cb(err); }
-      if (!user) { return cb(null, false); }
-      if (user.password != password) { return cb(null, false); }
-      return cb(null, user);
-    });
-  }
-));
-
-//----------------------------------------------
-//-------------------Passport Session Persistence-------------------
-//----------------------------------------------
-
-passport.serializeUser(function (user, cb) {
-  cb(null, user.id);
+//--------------------------------------------------
+//----------------------ROUTES----------------------
+//--------------------------------------------------
+app.post('/login', (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    if (err) throw err;
+    if (!user) res.send('No user exits!');
+    else {
+      req.logIn(user, err => {
+        if (err) throw err;
+        res.send('Successfully Authenticated');
+        console.log(req.user);
+      })
+    }
+  })(req, res, next);
 });
 
-passport.deserializeUser(function (id, cb) {
-  db.users.findById(id, function (err, user) {
-    if (err) { return cb(err); }
-    cb(null, user);
-  });
+app.post('/register', (req, res) => {
+  User.findOne({ username: req.body.username }, async (err, doc) => {
+    if (err) throw err;
+    if (doc) res.send("User already exists");
+    if (!doc) {
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+      const newUser = new User({
+        username: req.body.username,
+        password: hashedPassword
+      });
+      await newUser.save();
+      res.send("User Created");
+    }
+  })
 });
 
-app.use(require('morgan')('combined'));
-app.use(require('body-parser').urlencoded({extended: true}));
-app.use(require('express-session')({ secret: "thatswhatshesaid", resave: false, saveUninitialized: false}))
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.get('/', function (req, res) {
-  console.log('passport home')
-  res.render('home', { user: req.user });
+app.get('/user', (req, res) => {
+  res.send(req.user);
 });
 
-app.get('/login', function (req, res) {
-  console.log("you are logging in")
-  res.redirect('/');
-});
-
-app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }),
-  function (req, res) {
-    console.log('login post'),
-    res.redirect('/');
-  });
-
-app.get('/logout' , function (req, res) {
+app.get('/logout', (req, res) => {
+  console.log('logging out')
   req.logout();
   res.redirect('/');
 });
 
-app.get('/profile', require('connect-ensure-login').ensureLoggedIn(),
-function ( req, res) {
-  res.render('profiles', {user: req.user});
+
+
+//--------------------------------------------------
+//-------------------Start Server-------------------
+//--------------------------------------------------
+const port = process.env.PORT || 1725;
+app.listen(port, () => {
+  console.log(`Express server and socket.io listening at http://localhost:${port}`);
 });
