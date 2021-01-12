@@ -130,6 +130,6 @@ app.get('/logout', (req, res) => {
 //-------------------Start Server-------------------
 //--------------------------------------------------
 const port = process.env.PORT || 1725;
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Express server and socket.io listening at http://localhost:${port}`);
 });
