@@ -60,11 +60,6 @@ require('./passportConfig')(passport);
 // const db = require("./models");
 // db.sequelize.sync();
 
-// test route
-// app.get('/', (req, res) => {
-//   res.send('Hello World!');
-// });
-
 //---------------SOCKET IO---------------------------
 
 // events
