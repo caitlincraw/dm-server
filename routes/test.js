@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/socket', (req, res) => {
+router.get('/test', (req, res) => {
     res.send ({ response: 'I AM ALIVE'}).status(200);
 });
 
