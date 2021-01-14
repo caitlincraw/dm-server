@@ -27,7 +27,7 @@ const server = require('http').createServer(app);
 // enable CORS for local dev
 const io = require('socket.io')(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
@@ -67,10 +67,11 @@ io.on('connection', (socket) => {
   // let addedUser = false;
 
   console.log("a client is connected");
+  console.log(socket.id);
 
-  socket.on('sendMessage', (message) => {
-    io.emit('message', message);
-    console.log(`${message} sent`)
+  socket.on('sendMessage', (data) => {
+    io.emit('addMessage', data);
+    console.log("message info sent", data)
   });
 
   // client disconnect socket event
