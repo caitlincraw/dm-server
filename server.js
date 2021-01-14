@@ -61,22 +61,41 @@ require('./passportConfig')(passport);
 // db.sequelize.sync();
 
 //---------------SOCKET IO---------------------------
+let numUsers = 0;
 
-// events
+// main socket connection. all socket events go in this function. 
 io.on('connection', (socket) => {
-  // let addedUser = false;
+  ++numUsers;
+  console.log("someone just connected", numUsers);
+  
+  //user connected event
+  socket.on('userConnect', (userId) => {
+    // hardcoded to set the userId as the socket.id right now.. need to update this when using auth and login
+    userId = socket.id;
+    // sends the userid/name to all connected clients. use this for the message board
+    io.emit('getUser', userId);
+    // sends the number of online users to all connected clients
+    io.emit('numUsers', numUsers);
+  })
 
-  console.log("a client is connected");
-  console.log(socket.id);
-
+  // message event
   socket.on('sendMessage', (data) => {
     io.emit('addMessage', data);
     console.log("message info sent", data)
   });
 
+  // sound with message event 
+  // socket.on('sendSound', (data) => {
+  //   io.emit('addSound', data);
+  //   console.log("sound info sent", data)
+  // });
+
   // client disconnect socket event
   socket.on("disconnect", () => {
     console.log("client disconnected");
+    numUsers--;
+    io.emit('numUsers', numUsers);
+    console.log("someone just left", numUsers);
   });
 });
 
