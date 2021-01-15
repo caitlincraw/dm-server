@@ -2,7 +2,6 @@
 //-----------------DEPENDENCIES---------------------
 //--------------------------------------------------
 require('dotenv').config();
-const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
 const passport = require('passport');
@@ -10,17 +9,6 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const app = express();
-
-mongoose.connect(
-  "mongodb+srv://Michael:b88bs@pamslist.zeeew.mongodb.net/test?retryWrites=true&w=majority",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
-  () => {
-    console.log("Mongoose is connected")
-  }
-);
 
 // create instance of socket server 
 const server = require('http').createServer(app);
@@ -51,14 +39,14 @@ app.use(session({
 app.use(cookieParser('thatswhatshesaid'))
 app.use(passport.initialize());
 app.use(passport.session());
-require('./passportConfig')(passport);
+require('./config/passportConfig')(passport);
 
 //---------------End of Middleware-------------------
 
 //---------------POSTGRES STUFF---------------------- 
 // sync server to db
-// const db = require("./models");
-// db.sequelize.sync();
+const db = require("./models");
+db.sequelize.sync();
 
 //---------------SOCKET IO---------------------------
 let numUsers = 0;
