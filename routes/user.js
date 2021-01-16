@@ -5,22 +5,38 @@ const db = require('../models')
 const User = db.User;
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
-const sequelize = require('sequelize');
 
 router.use(bodyParser.json())
 
+// router.post('/login', passport.authenticate('local', { failureRedirect: '/login' }),
+//   (req, res) => {
+//     res.redirect('/');
+//   });
+
 router.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
-    if (err) throw err;
-    if (!user) res.send('No user exits!');
-    else {
-      req.logIn(user, err => {
-        if (err) throw err;
-        res.send('Successfully Authenticated');
-        console.log(req.user);
-      })
-    }
-  })(req, res, next);
+  let { username, password } = req.body;
+  console.log({ username, password });
+
+  passport.authenticate('local',
+    (err, user, info) => {
+      console.log('hitting login');
+      console.log(user)
+      if (err) {
+        throw err,
+        console.log('you are in login error')
+      };
+      if (!user) res.send('No user exists!');
+      else {
+        console.log('you are logging in')
+        req.logIn(user, err => {
+          console.log(err)
+          console.log(user)
+          if (err) return next(err);
+          res.send('Successfully Authenticated');
+          console.log(req.user);
+        })
+      }
+    })(req, res, next);
 });
 
 router.post('/register', async (req, res) => {
