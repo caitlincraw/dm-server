@@ -64,6 +64,8 @@ io.on('connection', (socket) => {
     io.emit('getUser', userId);
     // sends the number of online users to all connected clients
     io.emit('numUsers', numUsers);
+    // broadcast door opening song to everyone but the person who just joined
+    // socket.broadcast.emit('playDoorOpenSound', null);
   })
 
   // message event
@@ -73,10 +75,10 @@ io.on('connection', (socket) => {
   });
 
   // sound with message event 
-  // socket.on('sendSound', (data) => {
-  //   io.emit('addSound', data);
-  //   console.log("sound info sent", data)
-  // });
+  socket.on('sendSound', (srcOfSound) => {
+    io.emit('addSound', srcOfSound);
+    console.log("sound info sent", srcOfSound)
+  });
 
   // client disconnect socket event
   socket.on("disconnect", () => {
@@ -84,6 +86,7 @@ io.on('connection', (socket) => {
     numUsers--;
     io.emit('numUsers', numUsers);
     console.log("someone just left", numUsers);
+    //socket.broadcast.emit('playDoorCloseSound', null)
   });
 });
 
