@@ -24,63 +24,41 @@ router.post('/login', (req, res, next) => {
 });
 
 router.post('/register', async (req, res) => {
-  // let { username, password } = req.body;
-  // console.log({ username, password })
+  let { username, password } = req.body;
+  console.log({ username, password })
 
-  // let errors = [];
+  let errors = [];
 
-  // if (!username || !password) {
-  //   errors.push({ message: "Please fill required fields." });
-  // }
-  // if (password.length < 6) {
-  //   errors.push({ message: "Password needs to be a minimum of 6 characters." })
-  // }
+  if (!username || !password) {
+    errors.push({ message: "Please fill required fields." });
+  }
+  if (password.length < 6) {
+    errors.push({ message: "Password needs to be a minimum of 6 characters." })
+  }
 
-  // if (errors.length > 0) {
-  //   console.log({ errors });
-  // } else {
-  //   const hashedPassword = await bcrypt.hash(password, 10);
+  if (errors.length > 0) {
+    console.log({ errors });
+  } else {
 
-  //   User.sequelize.query(
-  //     `SELECT * FROM "Users"
-  //     WHERE username = $1`,
-  //     [username],
-  //     (err, results) => {
-  //       if (err) {
-  //         throw err
-  //       }
+    const newUser = await User.findOne({
+      where: {
+        username: username
+      },
+    });
 
-  //       console.log(results.rows);
+    if (newUser) {
+      res.send("User already exists.")
+    }
+    if (!newUser) {
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-  //       // if (doc) res.send('User already exists');
-  //       // if (!doc) 
-  //     }
-  //   )
-
-  //   //   const newUser = new User({
-  //   //     username: username,
-  //   //     password: hashedPassword
-  //   //   });
-  // }
-
-  await User.findOne({
-    where: {
-      username: req.body.username
-    },
-  }, async (err, doc) => {
-    if (err) { throw err, console.log('i am in throw error') };
-    if (doc) res.send("User already exists");
-    if (!doc) {
-      console.log("does this work");
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-      const newUser = await User.create({
-        username: req.body.username,
+      const createUser = await User.create({
+        username: username,
         password: hashedPassword
       });
       res.send("User Created");
-    }
-  })
+    };
+  }
 });
 
 router.get('/user', (req, res) => {
