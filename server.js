@@ -95,10 +95,12 @@ io.on('connection', (socket) => {
 //--------------------------------------------------
 
 const userRoutes = require('./routes/user');
+const prodRoutes = require('./routes/product');
 const testRoute = require('./routes/test');
 
 app.use('/', userRoutes);
 app.use('/', testRoute);
+app.use('/products', prodRoutes);
 
 //--------------------------------------------------
 //-------------------Start Server-------------------
