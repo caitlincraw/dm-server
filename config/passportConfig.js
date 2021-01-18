@@ -3,38 +3,44 @@ const User = db.User;
 const bcrypt = require('bcryptjs');
 const localStrategy = require('passport-local').Strategy;
 
-module.exports = function (passport) {
-
-    passport.use(
-        new localStrategy(async (username, password, done) => {
-            console.log('hitting passport auth');
-            let findUser = await User.findOne({ where: { username: username } });
-            console.log(findUser);
-            if (!findUser) {
-                console.log('user does not exist')
-                return done(null, false);
-            } else {
-                console.log('user exists');
-                bcrypt.compare(password, findUser.password, (err, result) => {
-                    console.log(result)
-                    if (err) throw err;
-                    if (result === true) { return done(null, findUser); }
-                    else { return done(null, false); }
-                })
+module.exports = (passport) => { 
+    
+    passport.use(new localStrategy(
+        async function(username, password, done) {
+            const user = await User.findOne({
+                where: {
+                    username: username
+                    }
+            }).catch(error => {return done(error)});
+            if (!user) {
+                return done(null, false, {message: 'No user with that username'});
             }
-        }))
+            let matched = await bcrypt.compare(password, user.password);
+            if (!matched) {
+                return done(null, false, {message: 'Not a matching password'});
+            }
+            return done(null, user);
+        }
+    ))
 
-
-    passport.serializeUser((user, cb) => {
-        cb(null, user.id);
-    })
-    passport.deserializeUser((id, cb) => {
-        User.findOne({ _id: id }, (err, user) => {
-            const userInformation = {
-                username: user.username
-            };
-            cb(err, userInformation);
-        })
-    })
-
-};
+    passport.serializeUser((user, done) => {
+        done(null, user.username);
+    });
+  
+    // needs to be async
+    passport.deserializeUser(async (username, done) => {
+        try {
+            let user = await User.findOne({
+                where: {
+                username: username
+                }
+            });
+            if (!user) {
+                return done(new Error('user not found'));
+            }     
+            done(null, user);
+        } catch (error) {
+            done(error);
+        }
+    });
+}

@@ -8,53 +8,37 @@ const bodyParser = require('body-parser');
 
 router.use(bodyParser.json())
 
-// router.post('/login', passport.authenticate('local', { failureRedirect: '/login' }),
-//   (req, res) => {
-//     res.redirect('/');
-//   });
-
 router.post('/login', (req, res, next) => {
-  let { username, password } = req.body;
-  console.log({ username, password });
-
-  passport.authenticate('local',
-    (err, user, info) => {
-      console.log('hitting login');
-      console.log(user)
-      if (err) {
-        throw err,
-        console.log('you are in login error')
-      };
-      if (!user) res.send('No user exists!');
-      else {
-        console.log('you are logging in')
-        req.logIn(user, err => {
-          console.log(err)
-          console.log(user)
-          if (err) return next(err);
-          res.send('Successfully Authenticated');
-          console.log(req.user);
-        })
-      }
-    })(req, res, next);
+    let { username, password } = req.body;  
+    passport.authenticate('local',
+        (err, user, info) => {
+            if (err) {return next(err);}
+            if (!user) {return res.send(info.message);}
+            req.logIn(user, err => {
+                if (err) {return next(err);}
+                res.send('Successfully Authenticated User');
+                console.log("after authenticated", req.user);
+            })
+        }
+    )(req, res, next);
 });
 
 router.post('/register', async (req, res) => {
-  let { username, password } = req.body;
-  console.log({ username, password })
+    let { username, password } = req.body;
+    console.log({ username, password })
 
-  let errors = [];
+    let errors = [];
 
-  if (!username || !password) {
-    errors.push({ message: "Please fill required fields." });
-  }
-  if (password.length < 6) {
-    errors.push({ message: "Password needs to be a minimum of 6 characters." })
-  }
+    if (!username || !password) {
+        errors.push({ message: "Please fill required fields." });
+    }
+    if (password.length < 6) {
+        errors.push({ message: "Password needs to be a minimum of 6 characters." })
+    }
 
-  if (errors.length > 0) {
-    console.log({ errors });
-  } else {
+    if (errors.length > 0) {
+        res.send(errors);
+    } else {
 
     const newUser = await User.findOne({
       where: {
@@ -72,20 +56,19 @@ router.post('/register', async (req, res) => {
         username: username,
         password: hashedPassword
       });
-      res.send("User Created");
+      res.send(`User with username: ${username} Created` );
     };
   }
 });
 
 router.get('/user', (req, res) => {
-  res.send(req.user);
+    console.log("this is req.user in the /user", req.user);
+    res.send(req.user);
 });
 
 router.get('/logout', (req, res) => {
-  console.log('logging out')
-  req.logout();
-  res.status(200).send("You are now logged out");
-
+    req.logout();
+    res.status(200).send("You are now logged out");
 });
 
 module.exports = router;
