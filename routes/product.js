@@ -19,4 +19,17 @@ router.get('/:id', async (req, res) => {
     res.send(product);
 });
 
+// add products
+router.post('/all', async (req, res) => {
+    const newProduct = new product(req.body);
+    const savedProduct = await newProduct.save();
+    res.send(savedProduct);
+});
+
+// delete product
+router.delete('/:id', async (req, res) => {
+    const deletedProduct = await product.findByIdAndDelete(req.params.id);
+    res.send(deletedProduct);
+})
+
 module.exports = router;
