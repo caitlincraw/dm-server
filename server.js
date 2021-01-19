@@ -96,11 +96,13 @@ io.on('connection', (socket) => {
 
 const userRoutes = require('./routes/user');
 const prodRoutes = require('./routes/product');
+const cartRoutes = require('./routes/cart');
 const testRoute = require('./routes/test');
 
 app.use('/', userRoutes);
 app.use('/', testRoute);
 app.use('/products', prodRoutes);
+app.use('/cart', cartRoutes);
 
 //--------------------------------------------------
 //-------------------Start Server-------------------
