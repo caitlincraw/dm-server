@@ -62,7 +62,7 @@ router.post('/register', async (req, res) => {
 });
 
 router.get('/user', (req, res) => {
-    console.log("this is req.user in the /user", req.user);
+    console.log("this is req.user in the /user", req.user.username);
     res.send(req.user);
 });
 

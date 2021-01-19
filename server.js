@@ -8,6 +8,7 @@ const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const axios = require('axios');
 const app = express();
 
 // create instance of socket server 
@@ -55,11 +56,18 @@ let numUsers = 0;
 io.on('connection', (socket) => {
   ++numUsers;
   console.log("someone just connected", numUsers);
-  
+
   //user connected event
   socket.on('userConnect', (userId) => {
     // hardcoded to set the userId as the socket.id right now.. need to update this when using auth and login
-    userId = socket.id;
+    // userId = socket.id;
+    userId = axios.get('/user')
+      .then(response => {
+        console.log(response.data.url);
+      })
+      .catch(error => {
+        console.log(error)
+      })
     // sends the userid/name to all connected clients. use this for the message board
     io.emit('getUser', userId);
     // sends the number of online users to all connected clients
