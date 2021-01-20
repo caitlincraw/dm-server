@@ -11,7 +11,8 @@ const bodyParser = require('body-parser');
 const app = express();
 
 // create instance of socket server 
-const server = require('http').createServer(app);
+// might need to be https for deploy
+const server = require('https').createServer(app);
 // enable CORS for local dev
 const io = require('socket.io')(server, {
   cors: {
