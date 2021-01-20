@@ -12,7 +12,7 @@ const app = express();
 
 // create instance of socket server 
 // might need to be https for deploy
-const server = require('https').createServer(app);
+const server = require('http').createServer(app);
 // enable CORS for local dev
 const io = require('socket.io')(server, {
   cors: {
