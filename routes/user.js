@@ -13,31 +13,50 @@ router.post('/login', (req, res, next) => {
     passport.authenticate('local',
         (err, user, info) => {
             if (err) {return next(err);}
-            if (!user) {return res.send(info.message);}
+            if (!user) {
+                return res.send(info.message);
+            }
             req.logIn(user, err => {
-                if (err) {return next(err);}
-                res.send('Successfully Authenticated User');
+                if (err) {
+                    return next(err);
+                }
                 console.log("after authenticated", req.user);
+                return res.send('Successfully Authenticated User');
             })
         }
     )(req, res, next);
 });
 
+exports.isLocalAuthenticated = function(req, res, next) {
+    passport.authenticate('local', function(err, user, info) {
+        if (err) { return next(err); } //error exception
+
+        // user will be set to false, if not authenticated
+        if (!user) {
+            res.status(401).json(info); //info contains the error message
+        } else {
+            // if user authenticated maintain the session
+            req.logIn(user, function() {
+                // do whatever here on successful login
+            })
+        }    
+    })(req, res, next);
+}
+
 router.post('/register', async (req, res) => {
     let { username, password } = req.body;
-    console.log({ username, password })
 
-    let errors = [];
+    let error;
 
     if (!username || !password) {
-        errors.push({ message: "Please fill required fields." });
+        error = "Please fill out both a username and a password.";
     }
-    if (password.length < 6) {
-        errors.push({ message: "Password needs to be a minimum of 6 characters." })
+    if (password && password.length < 6) {
+        error = "Password must be a minimum of 6 characters.";
     }
 
-    if (errors.length > 0) {
-        res.send(errors);
+    if (error) {
+        res.send(error);
     } else {
 
     const newUser = await User.findOne({
@@ -47,7 +66,7 @@ router.post('/register', async (req, res) => {
     });
 
     if (newUser) {
-      res.send("User already exists.")
+      res.send(`${username} already exists. Please try again.`)
     }
     if (!newUser) {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -56,7 +75,7 @@ router.post('/register', async (req, res) => {
         username: username,
         password: hashedPassword
       });
-      res.send(`User with username: ${username} Created` );
+      res.send(`Success! The user, ${username}, was created. Please proceed to login.` );
     };
   }
 });
@@ -70,5 +89,9 @@ router.get('/logout', (req, res) => {
     req.logout();
     res.status(200).send("You are now logged out");
 });
+
+router.get('/status', (req, res) => {
+    res.send(req.isAuthenticated())
+})
 
 module.exports = router;

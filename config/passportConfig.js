@@ -3,6 +3,8 @@ const User = db.User;
 const bcrypt = require('bcryptjs');
 const localStrategy = require('passport-local').Strategy;
 
+const NO_USER_FOUND = "No user found."
+
 module.exports = (passport) => { 
     
     passport.use(new localStrategy(
@@ -13,11 +15,11 @@ module.exports = (passport) => {
                     }
             }).catch(error => {return done(error)});
             if (!user) {
-                return done(null, false, {message: 'No user with that username'});
+                return done(null, false, {message: NO_USER_FOUND});
             }
             let matched = await bcrypt.compare(password, user.password);
             if (!matched) {
-                return done(null, false, {message: 'Not a matching password'});
+                return done(null, false, {message: NO_USER_FOUND});
             }
             return done(null, user);
         }
