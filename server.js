@@ -27,7 +27,8 @@ const io = require('socket.io')(server, {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
-  origin: "https://dundermifflininfinity.surge.sh",
+  // origin: "https://dundermifflininfinity.surge.sh",
+  origin: "http://localhost:3000",
   credentials: true
 }))
 
