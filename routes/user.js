@@ -55,6 +55,10 @@ router.post('/register', async (req, res) => {
         error = "Password must be a minimum of 6 characters.";
     }
 
+    if (username && username.length > 15) {
+        error = "Please keep your username to less than 15 characters."
+    }
+
     if (error) {
         res.send(error);
     } else {
