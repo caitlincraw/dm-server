@@ -13,11 +13,11 @@ const app = express();
 // create instance of socket server 
 // might need to be https for deploy
 const server = require('http').createServer(app);
-// enable CORS for local dev
+// enable CORS 
 const io = require('socket.io')(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST", "PUT", "DELETE"],
   }
 });
 
@@ -27,47 +27,70 @@ const io = require('socket.io')(server, {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
-  // origin: "https://dundermifflininfinity.surge.sh",
-  origin: "http://localhost:3000",
+  origin: process.env.ORIGIN_PATH,
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }))
 
-app.use(session({
+const sessionMiddleware = session({
   secret: 'thatswhatshesaid',
   resave: true,
   saveUninitialized: true,
-}));
+});
+
+app.use(sessionMiddleware);
 
 app.use(cookieParser('thatswhatshesaid'))
 app.use(passport.initialize());
 app.use(passport.session());
 require('./config/passportConfig')(passport);
 
-//---------------End of Middleware-------------------
+// wrapping function to connect socket and express middlewares
+const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
 
+io.use(wrap(sessionMiddleware));
+io.use(wrap(passport.initialize()));
+io.use(wrap(passport.session()));
+
+io.use((socket, next) => {
+  if (socket.request) {
+    next();
+  } else {
+    next(new Error('unauthorized'))
+  }
+});
+
+//---------------------------------------------------
 //---------------POSTGRES STUFF---------------------- 
-// sync server to db
+//---------------------------------------------------
+
 const db = require("./models");
 db.sequelize.sync();
 
+//---------------------------------------------------
 //---------------SOCKET IO---------------------------
+//---------------------------------------------------
 let numUsers = 0;
 
 // main socket connection. all socket events go in this function. 
 io.on('connection', (socket) => {
   ++numUsers;
   console.log("someone just connected", numUsers);
+
+  //connecting to session
+  const session = socket.request.session;
+  console.log("this is the session inside socket connection", session);
+  session.socketId = socket.id;
+  console.log("session.socketId", session.socketId);
+  session.save();
+  console.log(session)
   
   //user connected event
-  socket.on('userConnect', (userId) => {
-    // hardcoded to set the userId as the socket.id right now.. need to update this when using auth and login
-    userId = socket.id;
-    // sends the userid/name to all connected clients. use this for the message board
-    io.emit('getUser', userId);
-    // sends the number of online users to all connected clients
-    io.emit('numUsers', numUsers);
-    // broadcast door opening song to everyone but the person who just joined
-    // socket.broadcast.emit('playDoorOpenSound', null);
+  socket.on('userConnect', (user) => {
+    // userId = socket.id;
+    socket.emit('getUser', user);
+    socket.emit('numUsers', numUsers);
+    socket.broadcast.emit('playDoorOpenSound', null);
   })
 
   // message event
@@ -86,9 +109,9 @@ io.on('connection', (socket) => {
   socket.on("disconnect", () => {
     console.log("client disconnected");
     numUsers--;
-    io.emit('numUsers', numUsers);
+    socket.emit('numUsers', numUsers);
     console.log("someone just left", numUsers);
-    //socket.broadcast.emit('playDoorCloseSound', null)
+    socket.broadcast.emit('playDoorCloseSound', null)
   });
 });
 

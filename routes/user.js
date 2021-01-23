@@ -20,7 +20,6 @@ router.post('/login', (req, res, next) => {
                 if (err) {
                     return next(err);
                 }
-                console.log("after authenticated", req.user);
                 return res.send('Successfully Authenticated User');
             })
         }
@@ -85,8 +84,9 @@ router.post('/register', async (req, res) => {
 });
 
 router.get('/user', (req, res) => {
-    console.log("this is req.user in the /user", req.user);
-    res.send(req.user);
+    if (req.user){
+        res.send(req.user);
+    }
 });
 
 router.get('/logout', (req, res) => {
