@@ -36,6 +36,10 @@ const sessionMiddleware = session({
   secret: 'thatswhatshesaid',
   resave: true,
   saveUninitialized: true,
+  cookie: {
+    secure: false,
+    maxAge: 10000,
+  }
 });
 
 app.use(sessionMiddleware);
@@ -82,7 +86,7 @@ io.on('connection', (socket) => {
   session.socketId = socket.id;
   session.save();
   console.log(session)
-  
+
   //user connected event
   socket.on('userConnect', (user) => {
     socket.emit('getUser', user);
