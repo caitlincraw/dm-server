@@ -58,6 +58,10 @@ router.post('/register', async (req, res) => {
         error = "Please keep your username to less than 15 characters."
     }
 
+    if (username === "DMI ADMIN") {
+        error = "DMI ADMIN is a reserved username."
+    }
+
     if (error) {
         res.send(error);
     } else {
