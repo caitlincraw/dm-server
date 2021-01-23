@@ -85,8 +85,13 @@ io.on('connection', (socket) => {
   
   //user connected event
   socket.on('userConnect', (user) => {
-    socket.emit('getUser', user);
-    socket.emit('numUsers', numUsers);
+    socket.username = user.username;
+    session.socketUsername = socket.username;
+    session.save();
+    socket.emit('user', {
+      username: socket.username,
+      numUsers: numUsers,
+    })
     socket.broadcast.emit('playDoorOpenSound', null);
     socket.username = user.username;
     session.socketUsername = socket.username;
@@ -112,9 +117,11 @@ io.on('connection', (socket) => {
   // client disconnect socket event
   socket.on("disconnect", () => {
     console.log("client disconnected");
-    numUsers--;
-    socket.emit('numUsers', numUsers);
-    console.log("someone just left", numUsers);
+    --numUsers;
+    socket.emit('user', {
+      username: socket.username,
+      numUsers: numUsers,
+    });
     socket.broadcast.emit('userLeft', {
       user: "DMI ADMIN",
       message: `${socket.username} has left the chatroom 😞😞😞`
