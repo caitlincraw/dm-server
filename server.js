@@ -79,18 +79,22 @@ io.on('connection', (socket) => {
 
   //connecting to session
   const session = socket.request.session;
-  console.log("this is the session inside socket connection", session);
   session.socketId = socket.id;
-  console.log("session.socketId", session.socketId);
   session.save();
   console.log(session)
   
   //user connected event
   socket.on('userConnect', (user) => {
-    // userId = socket.id;
     socket.emit('getUser', user);
     socket.emit('numUsers', numUsers);
     socket.broadcast.emit('playDoorOpenSound', null);
+    socket.username = user.username;
+    session.socketUsername = socket.username;
+    session.save();
+    socket.broadcast.emit('userJoin', {
+      user: "DMI ADMIN",
+      message: `${socket.username} has joined the chatroom 😃😃😃`
+    });
   })
 
   // message event
@@ -111,6 +115,10 @@ io.on('connection', (socket) => {
     numUsers--;
     socket.emit('numUsers', numUsers);
     console.log("someone just left", numUsers);
+    socket.broadcast.emit('userLeft', {
+      user: "DMI ADMIN",
+      message: `${socket.username} has left the chatroom 😞😞😞`
+    });
     socket.broadcast.emit('playDoorCloseSound', null)
   });
 });
