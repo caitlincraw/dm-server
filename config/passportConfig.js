@@ -26,19 +26,7 @@ module.exports = (passport) => {
         }
     ))
 
-    // passport.serializeUser(function (user, cb) {
-    //     cb(null, user.username);
-    // });
-
-    // passport.deserializeUser(function (username, cb) {
-    //     db.users.findById(id, function (err, user) {
-    //         if (err) { return cb(err); }
-    //         cb(null, user);
-    //     });
-    // });
-
     passport.serializeUser((user, done) => {
-        console.log(user.username)
         done(null, user.username);
     });
 
@@ -52,7 +40,6 @@ module.exports = (passport) => {
     //     })
     // })
 
-    // needs to be async
     passport.deserializeUser(async (username, done) => {
         try {
             let user = await User.findOne({
@@ -68,5 +55,4 @@ module.exports = (passport) => {
             done(error);
         }
     });
-    // });
 }

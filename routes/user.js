@@ -90,8 +90,6 @@ router.post('/register', async (req, res) => {
 });
 
 router.get('/user', (req, res) => {
-    console.log("user auth", req.isAuthenticated())
-    console.log("you are inside yourself", req.user);
     if (req.user) {
         res.send(req.user);
     }
