@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 const localStrategy = require('passport-local').Strategy;
 
 const NO_USER_FOUND = "No user found."
-const PASSWORD_DOES_NOT_MATCH = "Password does not match."
 
 module.exports = (passport) => {
 
@@ -20,7 +19,7 @@ module.exports = (passport) => {
             }
             let matched = await bcrypt.compare(password, user.password);
             if (!matched) {
-                return done(null, false, { message: PASSWORD_DOES_NOT_MATCH });
+                return done(null, false, { message: NO_USER_FOUND });
             }
             return done(null, user);
         }
