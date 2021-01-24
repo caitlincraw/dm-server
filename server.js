@@ -11,7 +11,6 @@ const bodyParser = require('body-parser');
 const app = express();
 
 // create instance of socket server 
-// might need to be https for deploy
 const server = require('http').createServer(app);
 // enable CORS 
 const io = require('socket.io')(server, {
@@ -38,7 +37,6 @@ const sessionMiddleware = session({
   saveUninitialized: true,
   cookie: {
     secure: false,
-    maxAge: 10000,
   }
 });
 

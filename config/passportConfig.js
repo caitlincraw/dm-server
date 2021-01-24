@@ -29,16 +29,6 @@ module.exports = (passport) => {
         done(null, user.username);
     });
 
-    // passport.deserializeUser(function (user, cb) {
-    //     console.log(user)
-    //     db.User.findOne({
-    //         where: { username: user }
-    //     }, function (err, user) {
-    //         if (err) { return cb(err); }
-    //         cb(null, user);
-    //     })
-    // })
-
     passport.deserializeUser(async (username, done) => {
         try {
             let user = await User.findOne({

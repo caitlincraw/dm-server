@@ -5,4 +5,4 @@ function ensureAuthenticated(req, res, next) {
     res.send('get your shit together')
   }
   
-  module.exports = ensureAuthenticated;
+module.exports = ensureAuthenticated;

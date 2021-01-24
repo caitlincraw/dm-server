@@ -65,7 +65,7 @@ router.delete('/deleteItem/:id', async (req, res) => {
     });
 
     if (!cartItem) {
-        res.send("Oh no either the cart item doesn't exist")
+        res.send("Oh no, the cart item doesn't exist")
     }
  
     res.send(`Success! The item was deleted.` );
