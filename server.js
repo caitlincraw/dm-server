@@ -36,10 +36,14 @@ const sessionMiddleware = session({
   resave: true,
   saveUninitialized: true,
   cookie: {
-    secure: false,
-    httpOnly: false,    
+    sameSite: 'none',
   }
 });
+
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1); // trust first proxy
+  sessionConfig.cookie.secure = true; // serve secure cookies
+}
 
 app.use(sessionMiddleware);
 
@@ -141,6 +145,7 @@ const userRoutes = require('./routes/user');
 const prodRoutes = require('./routes/product');
 const cartRoutes = require('./routes/cart');
 const testRoute = require('./routes/test');
+const { NONAME } = require('dns');
 
 app.use('/', userRoutes);
 app.use('/', testRoute);
