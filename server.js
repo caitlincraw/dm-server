@@ -37,6 +37,8 @@ const sessionMiddleware = session({
   saveUninitialized: true,
   cookie: {
     secure: false,
+    httpOnly: false,
+    
   }
 });
 

@@ -99,8 +99,8 @@ router.get('/user', (req, res) => {
 });
 
 router.get('/logout', (req, res) => {
-    req.session.destroy;
     req.logout();
+    req.session.destroy();
     res.status(200).send("You are now logged out");
 });
 
