@@ -145,7 +145,6 @@ const userRoutes = require('./routes/user');
 const prodRoutes = require('./routes/product');
 const cartRoutes = require('./routes/cart');
 const testRoute = require('./routes/test');
-const { NONAME } = require('dns');
 
 app.use('/', userRoutes);
 app.use('/', testRoute);
