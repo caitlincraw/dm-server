@@ -31,19 +31,22 @@ app.use(cors({
   credentials: true
 }))
 
+app.set('trust proxy', 2);
+
 const sessionMiddleware = session({
   secret: 'thatswhatshesaid',
   resave: true,
   saveUninitialized: true,
   cookie: {
     sameSite: 'none',
+    secure: true,
   }
 });
 
-if (process.env.NODE_ENV === 'production') {
-  app.set('trust proxy', 1); // trust first proxy
-  sessionConfig.cookie.secure = true; // serve secure cookies
-}
+// if (process.env.NODE_ENV === 'production') {
+//   app.set('trust proxy', 1); // trust first proxy
+//   sessionConfig.cookie.secure = true; // serve secure cookies
+// }
 
 app.use(sessionMiddleware);
 
