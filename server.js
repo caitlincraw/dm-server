@@ -117,10 +117,8 @@ io.on('connection', (socket) => {
   socket.on("disconnect", () => {
     console.log("client disconnected");
     --numUsers;
-    socket.emit('user', {
-      username: socket.username,
-      numUsers: numUsers,
-    });
+    socket.emit('user', socket.username);
+    io.emit('numUsers', numUsers);
     socket.broadcast.emit('userLeft', {
       user: "DMI ADMIN",
       message: `${socket.username} has left the chatroom 😞😞😞`
