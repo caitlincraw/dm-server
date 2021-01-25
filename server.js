@@ -41,13 +41,7 @@ const sessionMiddleware = session({
   }
 });
 
-app.set('trust proxy', 2); // trust first proxy
-
-
-// if (process.env.NODE_ENV === 'production') {
-//   app.set('trust proxy', 2); // trust first proxy
-//   sessionConfig.cookie.secure = true; // serve secure cookies
-// }
+app.set('trust proxy', 2); 
 
 app.use(sessionMiddleware);
 
