@@ -36,10 +36,14 @@ const sessionMiddleware = session({
   resave: true,
   saveUninitialized: true,
   cookie: {
-    secure: false,
-    httpOnly: false,    
+    sameSite: 'none',
   }
 });
+
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1); // trust first proxy
+  sessionConfig.cookie.secure = true; // serve secure cookies
+}
 
 app.use(sessionMiddleware);
 
