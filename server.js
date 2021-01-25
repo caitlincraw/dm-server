@@ -33,10 +33,10 @@ app.use(cors({
 
 const sessionMiddleware = session({
   secret: 'thatswhatshesaid',
-  resave: true,
-  saveUninitialized: true,
+  resave: false,
+  saveUninitialized: false,
   cookie: {
-    sameSite: 'none',
+    sameSite: 'strict',
   }
 });
 
