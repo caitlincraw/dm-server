@@ -86,21 +86,15 @@ io.on('connection', (socket) => {
   const session = socket.request.session;
   session.socketId = socket.id;
   session.save();
-  console.log(session)
 
   //user connected event
   socket.on('userConnect', (user) => {
     socket.username = user.username;
     session.socketUsername = socket.username;
     session.save();
-    socket.emit('user', {
-      username: socket.username,
-      numUsers: numUsers,
-    })
+    socket.emit('user', socket.username);
+    io.emit('numUsers', numUsers);
     socket.broadcast.emit('playDoorOpenSound', null);
-    socket.username = user.username;
-    session.socketUsername = socket.username;
-    session.save();
     socket.broadcast.emit('userJoin', {
       user: "DMI ADMIN",
       message: `${socket.username} has joined the chatroom 😃😃😃`
