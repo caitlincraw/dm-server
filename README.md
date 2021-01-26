@@ -1,6 +1,6 @@
 # dm-server
 
-The backend server for Dunder Mifflin. 
+The backend server for [Dunder Mifflin Infinity](https://github.com/caitlincraw/dunder-mifflin). 
 
 ## Installing and Using dm-server
 
