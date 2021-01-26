@@ -8,7 +8,7 @@ The backend server for Dunder Mifflin.
 * Clone the repository.
 * Use the package manager [npm](https://www.npmjs.com/get-npm) to run `npm install` in the project directory.
 * Create a `.env` file in the root of the project. The following variables are required:
-    * `PORT`: Port where the backend server will run; use 9000 for local development
+    * `PORT`: Port where the backend server will run; use 1725 for local development
     * `DB_USER`: Local user
     * `DB_PASS` : Local user password
     * `DB_NAME` : Local database, use pandemicpatios_dev 
